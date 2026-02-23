@@ -1,0 +1,14 @@
+.git
+.claude
+.next
+node_modules
+*.db
+*.db-journal
+.env.local
+.env.*.local
+npm-debug.log*
+scripts/discover*.ts
+scripts/inspect*.ts
+scripts/test-*.ts
+scripts/check-db.ts
+README.md

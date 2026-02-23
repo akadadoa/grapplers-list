@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Competition {
+  id              String    @id @default(cuid())
+  source          String    // "ibjjf" | "jjwl"
+  name            String
+  startDate       DateTime
+  endDate         DateTime?
+  location        String
+  lat             Float?
+  lng             Float?
+  registrationUrl String
+  details         String?   // JSON string (SQLite has no native Json type)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([startDate])
+  @@index([source])
+}

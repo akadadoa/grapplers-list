@@ -1,0 +1,48 @@
+"use client";
+
+import { create } from "zustand";
+import { Competition, FilterState } from "@/types";
+
+interface MapStore {
+  competitions: Competition[];
+  filters: FilterState;
+  selectedCompetition: Competition | null;
+  isLoading: boolean;
+
+  setCompetitions: (competitions: Competition[]) => void;
+  setFilters: (filters: Partial<FilterState>) => void;
+  setSelectedCompetition: (competition: Competition | null) => void;
+  setIsLoading: (loading: boolean) => void;
+}
+
+const today = new Date().toISOString().split("T")[0];
+const nextYear = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+  .toISOString()
+  .split("T")[0];
+
+export const useMapStore = create<MapStore>((set) => ({
+  competitions: [],
+  filters: {
+    dateFrom: today,
+    dateTo: nextYear,
+    region: "",
+    sources: {
+      ibjjf: true,
+      jjwl: true,
+      agf: true,
+      naga: true,
+      adcc: true,
+    },
+  },
+  selectedCompetition: null,
+  isLoading: false,
+
+  setCompetitions: (competitions) => set({ competitions }),
+  setFilters: (filters) =>
+    set((state) => ({
+      filters: { ...state.filters, ...filters },
+    })),
+  setSelectedCompetition: (competition) =>
+    set({ selectedCompetition: competition }),
+  setIsLoading: (isLoading) => set({ isLoading }),
+}));
