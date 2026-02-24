@@ -110,9 +110,10 @@ export async function scrapeJJWL(): Promise<{ count: number; method: string }> {
       }
     }
 
-    const giNogi = [e.GI === "1" ? "Gi" : null, e.NOGI === "1" ? "No-Gi" : null]
-      .filter(Boolean)
-      .join(" / ");
+    const isGi = e.GI === "1";
+    const isNogi = e.NOGI === "1";
+    const isKids = /(youth|junior|kids|juvenile)/i.test(e.name);
+    const giNogi = [isGi ? "Gi" : null, isNogi ? "No-Gi" : null].filter(Boolean).join(" / ");
 
     await prisma.competition.upsert({
       where: { id: stableKey },
@@ -126,6 +127,9 @@ export async function scrapeJJWL(): Promise<{ count: number; method: string }> {
         lat,
         lng,
         registrationUrl,
+        gi: isGi,
+        nogi: isNogi,
+        kids: isKids,
         details: JSON.stringify({
           id: e.id,
           address: e.address,
@@ -140,6 +144,9 @@ export async function scrapeJJWL(): Promise<{ count: number; method: string }> {
         lat: lat ?? undefined,
         lng: lng ?? undefined,
         registrationUrl,
+        gi: isGi,
+        nogi: isNogi,
+        kids: isKids,
       },
     });
     count++;

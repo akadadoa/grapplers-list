@@ -157,6 +157,8 @@ export async function scrapeADCC(): Promise<{ count: number; method: string }> {
       }
     }
 
+    const isKids = /youth/i.test(e.category);
+
     await prisma.competition.upsert({
       where: { id: stableKey },
       create: {
@@ -169,6 +171,9 @@ export async function scrapeADCC(): Promise<{ count: number; method: string }> {
         lat,
         lng,
         registrationUrl: e.registrationUrl,
+        gi: false,
+        nogi: true,
+        kids: isKids,
         details: JSON.stringify({ category: e.category }),
       },
       update: {
@@ -177,6 +182,9 @@ export async function scrapeADCC(): Promise<{ count: number; method: string }> {
         lat: lat ?? undefined,
         lng: lng ?? undefined,
         registrationUrl: e.registrationUrl,
+        gi: false,
+        nogi: true,
+        kids: isKids,
       },
     });
     count++;

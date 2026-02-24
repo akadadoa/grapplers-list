@@ -31,6 +31,11 @@ export function MapView() {
         params.set("sources", activeSources.join(","));
       }
 
+      if (filters.gi) params.set("gi", "1");
+      if (filters.nogi) params.set("nogi", "1");
+      if (filters.adult) params.set("adult", "1");
+      if (filters.kids) params.set("kids", "1");
+
       const res = await fetch(`/api/competitions?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch competitions");
       const data: Competition[] = await res.json();

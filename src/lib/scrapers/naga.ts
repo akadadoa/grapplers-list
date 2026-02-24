@@ -116,6 +116,8 @@ export async function scrapeNAGA(): Promise<{ count: number; method: string }> {
       }
     }
 
+    const isKids = /(youth|junior|kids|juvenile)/i.test(e.title);
+
     await prisma.competition.upsert({
       where: { id: stableKey },
       create: {
@@ -128,6 +130,9 @@ export async function scrapeNAGA(): Promise<{ count: number; method: string }> {
         lat,
         lng,
         registrationUrl: e.href || EVENTS_URL,
+        gi: true,
+        nogi: true,
+        kids: isKids,
         details: JSON.stringify({ dateText: e.dateText, venueText: e.venueText }),
       },
       update: {
@@ -136,6 +141,9 @@ export async function scrapeNAGA(): Promise<{ count: number; method: string }> {
         lat: lat ?? undefined,
         lng: lng ?? undefined,
         registrationUrl: e.href || EVENTS_URL,
+        gi: true,
+        nogi: true,
+        kids: isKids,
       },
     });
     count++;

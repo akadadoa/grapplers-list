@@ -107,6 +107,8 @@ export async function scrapeAGF(): Promise<{ count: number; method: string }> {
       }
     }
 
+    const isKids = /(youth|junior|kids|juvenile)/i.test(e.name);
+
     await prisma.competition.upsert({
       where: { id: stableKey },
       create: {
@@ -119,6 +121,9 @@ export async function scrapeAGF(): Promise<{ count: number; method: string }> {
         lat,
         lng,
         registrationUrl: e.registrationUrl,
+        gi: true,
+        nogi: true,
+        kids: isKids,
         details: null,
       },
       update: {
@@ -127,6 +132,9 @@ export async function scrapeAGF(): Promise<{ count: number; method: string }> {
         lat: lat ?? undefined,
         lng: lng ?? undefined,
         registrationUrl: e.registrationUrl,
+        gi: true,
+        nogi: true,
+        kids: isKids,
       },
     });
     count++;

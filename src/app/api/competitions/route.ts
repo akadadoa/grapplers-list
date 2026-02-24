@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
   const dateTo = searchParams.get("dateTo");
   const region = searchParams.get("region");
   const sourcesParam = searchParams.get("sources");
+  const giParam = searchParams.get("gi");
+  const nogiParam = searchParams.get("nogi");
+  const adultParam = searchParams.get("adult");
+  const kidsParam = searchParams.get("kids");
 
   // Build Prisma where filter
   const where: Prisma.CompetitionWhereInput = {};
@@ -42,6 +46,31 @@ export async function GET(request: NextRequest) {
       contains: region.trim(),
     };
   }
+
+  // Gi / No-Gi filter
+  const wantGi = giParam === "1";
+  const wantNogi = nogiParam === "1";
+  if (wantGi && !wantNogi) {
+    where.gi = true;
+  } else if (wantNogi && !wantGi) {
+    where.nogi = true;
+  } else if (!wantGi && !wantNogi) {
+    // Neither selected → return nothing
+    where.id = { in: [] };
+  }
+  // Both selected → no filter (show all)
+
+  // Adult / Kids filter
+  const wantAdult = adultParam === "1";
+  const wantKids = kidsParam === "1";
+  if (wantAdult && !wantKids) {
+    where.kids = false;
+  } else if (wantKids && !wantAdult) {
+    where.kids = true;
+  } else if (!wantAdult && !wantKids) {
+    where.id = { in: [] };
+  }
+  // Both selected → no filter
 
   try {
     const competitions = await prisma.competition.findMany({

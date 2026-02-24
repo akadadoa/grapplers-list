@@ -219,6 +219,68 @@ export function FilterPanel() {
           </div>
         </div>
 
+        {/* Gi / No-Gi */}
+        <div>
+          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
+            Gi / No-Gi
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              onClick={() => setFilters({ gi: !filters.gi })}
+              className={cn(
+                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                filters.gi
+                  ? "bg-blue-600 text-white border-blue-500"
+                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+              )}
+            >
+              Gi
+            </button>
+            <button
+              onClick={() => setFilters({ nogi: !filters.nogi })}
+              className={cn(
+                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                filters.nogi
+                  ? "bg-blue-600 text-white border-blue-500"
+                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+              )}
+            >
+              No-Gi
+            </button>
+          </div>
+        </div>
+
+        {/* Age group */}
+        <div>
+          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
+            Age Group
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              onClick={() => setFilters({ adult: !filters.adult })}
+              className={cn(
+                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                filters.adult
+                  ? "bg-blue-600 text-white border-blue-500"
+                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+              )}
+            >
+              Adult
+            </button>
+            <button
+              onClick={() => setFilters({ kids: !filters.kids })}
+              className={cn(
+                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                filters.kids
+                  ? "bg-blue-600 text-white border-blue-500"
+                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+              )}
+            >
+              Kids
+            </button>
+          </div>
+        </div>
+
         {/* Region search */}
         <div>
           <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">

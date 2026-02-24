@@ -144,6 +144,10 @@ export async function scrapeIBJJF(): Promise<{ count: number; method: string }> 
       }
     }
 
+    const nameLower = c.name.toLowerCase();
+    const isNogi = /no.?gi/i.test(c.name);
+    const isKids = /(youth|junior|kids|juvenile)/i.test(nameLower);
+
     await prisma.competition.upsert({
       where: { id: stableKey },
       create: {
@@ -156,6 +160,9 @@ export async function scrapeIBJJF(): Promise<{ count: number; method: string }> 
         lat,
         lng,
         registrationUrl,
+        gi: !isNogi,
+        nogi: isNogi,
+        kids: isKids,
         details: JSON.stringify({
           eventMonth: c.eventMonth,
           eventIntervalDays: c.eventIntervalDays,
@@ -169,6 +176,9 @@ export async function scrapeIBJJF(): Promise<{ count: number; method: string }> 
         lat: lat ?? undefined,
         lng: lng ?? undefined,
         registrationUrl,
+        gi: !isNogi,
+        nogi: isNogi,
+        kids: isKids,
       },
     });
     count++;
