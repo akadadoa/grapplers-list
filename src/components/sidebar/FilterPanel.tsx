@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useMapStore } from "@/store/useMapStore";
-import { Search, MapPin, RefreshCw, Calendar } from "lucide-react";
+import { Search, MapPin, RefreshCw, Calendar, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CompetitionSource } from "@/types";
 import * as Slider from "@radix-ui/react-slider";
@@ -79,6 +80,7 @@ function formatSliderLabel(dateStr: string): string {
 
 export function FilterPanel() {
   const { filters, setFilters, isLoading, competitions } = useMapStore();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const fromOffset = dayOffset(filters.dateFrom);
   const toOffset = dayOffset(filters.dateTo);
@@ -91,11 +93,46 @@ export function FilterPanel() {
   }
 
   return (
-    <aside className="w-72 bg-gray-900 border-r border-gray-700 flex flex-col">
+    <>
+      {/* Mobile toggle button — visible only on small screens */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-20 bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg shadow-lg"
+        aria-label="Open filters"
+      >
+        <SlidersHorizontal size={18} />
+      </button>
+
+      {/* Overlay backdrop on mobile */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-20 bg-black/60"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+    <aside className={cn(
+      "bg-gray-900 border-r border-gray-700 flex flex-col z-30",
+      // Desktop: always visible as a fixed-width sidebar
+      "md:relative md:w-72 md:translate-x-0",
+      // Mobile: full-height drawer sliding in from the left
+      "fixed inset-y-0 left-0 w-72",
+      mobileOpen ? "translate-x-0" : "-translate-x-full",
+      "transition-transform duration-200 md:transition-none",
+    )}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
-        <h1 className="text-lg font-bold text-white">Grapplers List</h1>
-        <p className="text-xs text-gray-400 mt-0.5">BJJ Competition Map</p>
+      <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-white">Grapplers List</h1>
+          <p className="text-xs text-gray-400 mt-0.5">BJJ Competition Map</p>
+        </div>
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="md:hidden text-gray-400 hover:text-white p-1"
+          aria-label="Close filters"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Filters */}
@@ -232,5 +269,6 @@ export function FilterPanel() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
