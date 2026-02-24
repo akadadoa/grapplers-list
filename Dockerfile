@@ -10,6 +10,10 @@ RUN npm ci
 # Copy source
 COPY . .
 
+# Make the Mapbox public token available at build time so Next.js can inline it
+ARG NEXT_PUBLIC_MAPBOX_TOKEN
+ENV NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
+
 # Generate Prisma client and build Next.js
 RUN npx prisma generate
 RUN npm run build
