@@ -72,11 +72,26 @@ export async function GET(request: NextRequest) {
   }
   // Both selected → no filter
 
-  // Total count: only source filter (no date/region/gi/nogi/kids) so the
-  // badge can show "X on map / Y total for these sources"
-  const sourceWhere: Prisma.CompetitionWhereInput = sourcesParam
-    ? { source: { in: sourcesParam.split(",").map((s) => s.trim().toLowerCase()) } }
-    : {};
+  // Total count: source + gi/nogi/kids filters but NOT date/region,
+  // so the badge shows "X in date range / Y matching your type filters"
+  const totalWhere: Prisma.CompetitionWhereInput = {};
+  if (sourcesParam) {
+    totalWhere.source = { in: sourcesParam.split(",").map((s) => s.trim().toLowerCase()) };
+  }
+  if (wantGi && !wantNogi) {
+    totalWhere.gi = true;
+  } else if (wantNogi && !wantGi) {
+    totalWhere.nogi = true;
+  } else if (!wantGi && !wantNogi) {
+    totalWhere.id = { in: [] };
+  }
+  if (wantAdult && !wantKids) {
+    totalWhere.kids = false;
+  } else if (wantKids && !wantAdult) {
+    totalWhere.kids = true;
+  } else if (!wantAdult && !wantKids) {
+    totalWhere.id = { in: [] };
+  }
 
   try {
     const [competitions, total] = await Promise.all([
@@ -85,7 +100,7 @@ export async function GET(request: NextRequest) {
         orderBy: { startDate: "asc" },
         take: 500,
       }),
-      prisma.competition.count({ where: sourceWhere }),
+      prisma.competition.count({ where: totalWhere }),
     ]);
 
     return NextResponse.json({ competitions, total });
