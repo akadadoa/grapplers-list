@@ -44,10 +44,10 @@ export function StackedMarker({ lat, lng, competitions }: StackedMarkerProps) {
             height: 26,
             fontSize: 11,
             backgroundColor: "#1e293b",
-            border: isAnySelected ? "2px solid white" : "2px solid rgba(255,255,255,0.5)",
+            border: isAnySelected ? "2.5px solid white" : "2px solid white",
             boxShadow: isAnySelected
-              ? "0 0 0 3px rgba(255,255,255,0.3)"
-              : "0 2px 6px rgba(0,0,0,0.5)",
+              ? "0 0 0 3px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.5)"
+              : "0 2px 6px rgba(0,0,0,0.45)",
           }}
         >
           {competitions.length}

@@ -73,7 +73,7 @@ export function MapView() {
       <Map
         {...viewState}
         onMove={(evt: { viewState: typeof viewState }) => setViewState(evt.viewState)}
-        mapStyle="mapbox://styles/mapbox/dark-v11"
+        mapStyle="mapbox://styles/mapbox/outdoors-v12"
         mapboxAccessToken={token}
         style={{ width: "100%", height: "100%" }}
         onClick={() => setSelectedCompetition(null)}

@@ -46,10 +46,10 @@ export function CompetitionMarker({ competition }: CompetitionMarkerProps) {
             height: isSelected ? 18 : 14,
             borderRadius: "50%",
             backgroundColor: color,
-            border: isSelected ? "2px solid white" : "2px solid rgba(255,255,255,0.6)",
+            border: isSelected ? "2.5px solid white" : "2px solid white",
             boxShadow: isSelected
-              ? `0 0 0 3px ${color}80`
-              : "0 2px 4px rgba(0,0,0,0.4)",
+              ? `0 0 0 3px ${color}90, 0 2px 6px rgba(0,0,0,0.5)`
+              : "0 2px 5px rgba(0,0,0,0.45)",
             transition: "all 0.15s ease",
           }}
         />
