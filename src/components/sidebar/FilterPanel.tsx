@@ -79,7 +79,7 @@ function formatSliderLabel(dateStr: string): string {
 }
 
 export function FilterPanel() {
-  const { filters, setFilters, isLoading, competitions } = useMapStore();
+  const { filters, setFilters, isLoading, competitions, total } = useMapStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const fromOffset = dayOffset(filters.dateFrom);
@@ -310,11 +310,11 @@ export function FilterPanel() {
                 Loading...
               </span>
             ) : (
-              `${competitions.length} competitions`
+              `${competitions.length} shown / ${total} total`
             )}
           </span>
           <span className="text-gray-600">
-            {competitions.filter((c) => c.lat != null).length} on map
+            {competitions.filter((c) => c.lat != null).length} mapped
           </span>
         </div>
 

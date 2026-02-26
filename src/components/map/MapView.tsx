@@ -9,7 +9,7 @@ import { useMapStore } from "@/store/useMapStore";
 import { Competition } from "@/types";
 
 export function MapView() {
-  const { competitions, filters, setCompetitions, setIsLoading, setSelectedCompetition } =
+  const { competitions, total, filters, setCompetitions, setIsLoading, setSelectedCompetition } =
     useMapStore();
   const [viewState, setViewState] = useState({
     longitude: -96,
@@ -39,8 +39,8 @@ export function MapView() {
 
       const res = await fetch(`/api/competitions?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch competitions");
-      const data: Competition[] = await res.json();
-      setCompetitions(data);
+      const { competitions: data, total }: { competitions: Competition[]; total: number } = await res.json();
+      setCompetitions(data, total);
     } catch (err) {
       console.error("Failed to fetch competitions:", err);
     } finally {
@@ -104,7 +104,7 @@ export function MapView() {
       {/* Competition count badge */}
       <div className="absolute top-4 right-4 bg-gray-900/80 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full border border-gray-700">
         {competitions.filter((c) => c.lat != null).length} on map /{" "}
-        {competitions.length} total
+        {total} total
       </div>
     </div>
   );

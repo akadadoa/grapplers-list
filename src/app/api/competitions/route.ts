@@ -72,14 +72,23 @@ export async function GET(request: NextRequest) {
   }
   // Both selected → no filter
 
-  try {
-    const competitions = await prisma.competition.findMany({
-      where,
-      orderBy: { startDate: "asc" },
-      take: 500,
-    });
+  // Total count: only source filter (no date/region/gi/nogi/kids) so the
+  // badge can show "X on map / Y total for these sources"
+  const sourceWhere: Prisma.CompetitionWhereInput = sourcesParam
+    ? { source: { in: sourcesParam.split(",").map((s) => s.trim().toLowerCase()) } }
+    : {};
 
-    return NextResponse.json(competitions);
+  try {
+    const [competitions, total] = await Promise.all([
+      prisma.competition.findMany({
+        where,
+        orderBy: { startDate: "asc" },
+        take: 500,
+      }),
+      prisma.competition.count({ where: sourceWhere }),
+    ]);
+
+    return NextResponse.json({ competitions, total });
   } catch (error) {
     console.error("[API] /competitions error:", error);
     return NextResponse.json(

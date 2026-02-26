@@ -5,11 +5,12 @@ import { Competition, FilterState } from "@/types";
 
 interface MapStore {
   competitions: Competition[];
+  total: number;
   filters: FilterState;
   selectedCompetition: Competition | null;
   isLoading: boolean;
 
-  setCompetitions: (competitions: Competition[]) => void;
+  setCompetitions: (competitions: Competition[], total: number) => void;
   setFilters: (filters: Partial<FilterState>) => void;
   setSelectedCompetition: (competition: Competition | null) => void;
   setIsLoading: (loading: boolean) => void;
@@ -22,6 +23,7 @@ const nextYear = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
 
 export const useMapStore = create<MapStore>((set) => ({
   competitions: [],
+  total: 0,
   filters: {
     dateFrom: today,
     dateTo: nextYear,
@@ -41,7 +43,7 @@ export const useMapStore = create<MapStore>((set) => ({
   selectedCompetition: null,
   isLoading: false,
 
-  setCompetitions: (competitions) => set({ competitions }),
+  setCompetitions: (competitions, total) => set({ competitions, total }),
   setFilters: (filters) =>
     set((state) => ({
       filters: { ...state.filters, ...filters },
