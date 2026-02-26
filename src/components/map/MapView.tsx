@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState } from "react";
 import Map, { NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { CompetitionMarker } from "./CompetitionMarker";
+import { StackedMarker } from "./StackedMarker";
 import { useMapStore } from "@/store/useMapStore";
 import { Competition } from "@/types";
 
@@ -78,11 +79,26 @@ export function MapView() {
         onClick={() => setSelectedCompetition(null)}
       >
         <NavigationControl position="bottom-right" />
-        {competitions
-          .filter((c) => c.lat != null && c.lng != null)
-          .map((competition) => (
-            <CompetitionMarker key={competition.id} competition={competition} />
-          ))}
+        {Object.entries(
+          competitions
+            .filter((c) => c.lat != null && c.lng != null)
+            .reduce<Record<string, Competition[]>>((groups, c) => {
+              const key = `${c.lat},${c.lng}`;
+              (groups[key] ??= []).push(c);
+              return groups;
+            }, {})
+        ).map(([key, group]) =>
+          group.length === 1 ? (
+            <CompetitionMarker key={key} competition={group[0]} />
+          ) : (
+            <StackedMarker
+              key={key}
+              lat={group[0].lat!}
+              lng={group[0].lng!}
+              competitions={group}
+            />
+          )
+        )}
       </Map>
 
       {/* Competition count badge */}
