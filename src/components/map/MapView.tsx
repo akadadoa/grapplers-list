@@ -12,9 +12,9 @@ export function MapView() {
   const { competitions, filters, setCompetitions, setIsLoading, setSelectedCompetition } =
     useMapStore();
   const [viewState, setViewState] = useState({
-    longitude: -30,
-    latitude: 25,
-    zoom: 2,
+    longitude: -96,
+    latitude: 38,
+    zoom: 3,
   });
 
   const fetchCompetitions = useCallback(async () => {
