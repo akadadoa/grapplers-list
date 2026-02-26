@@ -3,7 +3,7 @@ import { geocode } from "@/lib/geocode";
 
 // Real endpoint discovered via Playwright network interception
 const API_URL = "https://www.jjworldleague.com/ajax/new_load_events.php";
-const EVENT_BASE_URL = "https://jjworldleague.com/event";
+const EVENT_BASE_URL = "https://www.jjworldleague.com/events";
 
 interface JjwlEvent {
   id: string;
@@ -86,7 +86,7 @@ export async function scrapeJJWL(): Promise<{ count: number; method: string }> {
     const geocodeInput = e.address || e.city;
     const registrationUrl = e.urlfriendly
       ? `${EVENT_BASE_URL}/${e.urlfriendly}`
-      : "https://jjworldleague.com";
+      : "https://www.jjworldleague.com/registration/";
 
     const stableKey = `jjwl-${e.id}-${e.datebeg}`;
 
