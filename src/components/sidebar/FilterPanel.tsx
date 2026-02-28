@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils";
 import { CompetitionSource } from "@/types";
 import * as Slider from "@radix-ui/react-slider";
 import { format, addDays, differenceInDays, parseISO, startOfDay } from "date-fns";
+import { AuthButton } from "@/components/auth/AuthButton";
+import { ProGate } from "@/components/paywall/ProGate";
+import { UpgradeModal } from "@/components/paywall/UpgradeModal";
 
 const SOURCE_CONFIG: Array<{
   key: CompetitionSource;
@@ -81,6 +84,7 @@ function formatSliderLabel(dateStr: string): string {
 export function FilterPanel() {
   const { filters, setFilters, isLoading, competitions, total } = useMapStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const fromOffset = dayOffset(filters.dateFrom);
   const toOffset = dayOffset(filters.dateTo);
@@ -94,7 +98,7 @@ export function FilterPanel() {
 
   return (
     <>
-      {/* Mobile toggle button — visible only on small screens */}
+      {/* Mobile toggle button */}
       <button
         onClick={() => setMobileOpen(true)}
         className="md:hidden fixed top-4 left-4 z-20 bg-gray-900 border border-gray-700 text-white p-2.5 rounded-lg shadow-lg"
@@ -103,7 +107,7 @@ export function FilterPanel() {
         <SlidersHorizontal size={18} />
       </button>
 
-      {/* Overlay backdrop on mobile */}
+      {/* Mobile backdrop */}
       {mobileOpen && (
         <div
           className="md:hidden fixed inset-0 z-20 bg-black/60"
@@ -111,226 +115,235 @@ export function FilterPanel() {
         />
       )}
 
-    <aside className={cn(
-      "bg-gray-900 border-r border-gray-700 flex flex-col z-30",
-      // Desktop: always visible as a fixed-width sidebar
-      "md:relative md:w-72 md:translate-x-0",
-      // Mobile: full-height drawer sliding in from the left
-      "fixed inset-y-0 left-0 w-72",
-      mobileOpen ? "translate-x-0" : "-translate-x-full",
-      "transition-transform duration-200 md:transition-none",
-    )}>
-      {/* Header */}
-      <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-white">Grapplers List</h1>
-          <p className="text-xs text-gray-400 mt-0.5">BJJ Competition Map</p>
+      <aside
+        className={cn(
+          "bg-gray-900 border-r border-gray-700 flex flex-col z-30",
+          "md:relative md:w-72 md:translate-x-0",
+          "fixed inset-y-0 left-0 w-72",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+          "transition-transform duration-200 md:transition-none",
+        )}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold text-white">Grapplers List</h1>
+            <p className="text-xs text-gray-400 mt-0.5">BJJ Competition Map</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <AuthButton />
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="md:hidden text-gray-400 hover:text-white p-1"
+              aria-label="Close filters"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => setMobileOpen(false)}
-          className="md:hidden text-gray-400 hover:text-white p-1"
-          aria-label="Close filters"
-        >
-          <X size={18} />
-        </button>
-      </div>
 
-      {/* Filters */}
-      <div className="p-4 space-y-5 flex-1 overflow-y-auto">
+        {/* Filters */}
+        <div className="p-4 space-y-5 flex-1 overflow-y-auto">
 
-        {/* Source toggles */}
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
-            Sources
-          </label>
-          <div className="grid grid-cols-3 gap-1.5">
-            {SOURCE_CONFIG.map((src) => (
-              <button
-                key={src.key}
-                onClick={() =>
-                  setFilters({
-                    sources: { ...filters.sources, [src.key]: !filters.sources[src.key] },
-                  })
-                }
-                className={cn(
-                  "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
-                  filters.sources[src.key] ? src.activeClass : src.inactiveClass
-                )}
+          {/* Sources — Pro feature */}
+          <ProGate onUpgrade={() => setUpgradeOpen(true)}>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
+                Sources
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {SOURCE_CONFIG.map((src) => (
+                  <button
+                    key={src.key}
+                    onClick={() =>
+                      setFilters({
+                        sources: { ...filters.sources, [src.key]: !filters.sources[src.key] },
+                      })
+                    }
+                    className={cn(
+                      "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                      filters.sources[src.key] ? src.activeClass : src.inactiveClass
+                    )}
+                  >
+                    {src.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </ProGate>
+
+          {/* Date range — Pro feature */}
+          <ProGate onUpgrade={() => setUpgradeOpen(true)}>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <Calendar size={12} />
+                Date Range
+              </label>
+
+              <div className="flex justify-between mb-3">
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 mb-0.5">From</div>
+                  <div className="text-xs font-medium text-white bg-gray-800 px-2 py-1 rounded-md border border-gray-700">
+                    {formatSliderLabel(filters.dateFrom)}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 mb-0.5">To</div>
+                  <div className="text-xs font-medium text-white bg-gray-800 px-2 py-1 rounded-md border border-gray-700">
+                    {formatSliderLabel(filters.dateTo)}
+                  </div>
+                </div>
+              </div>
+
+              <Slider.Root
+                className="relative flex items-center select-none touch-none w-full h-5"
+                min={0}
+                max={SLIDER_MAX_DAYS}
+                step={1}
+                value={[fromOffset, toOffset]}
+                onValueChange={handleSliderChange}
+                minStepsBetweenThumbs={1}
               >
+                <Slider.Track className="bg-gray-700 relative grow rounded-full h-1.5">
+                  <Slider.Range className="absolute bg-blue-500 rounded-full h-full" />
+                </Slider.Track>
+                <Slider.Thumb
+                  className="block w-4 h-4 bg-white rounded-full shadow-md border-2 border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-gray-900 cursor-grab active:cursor-grabbing transition-colors"
+                  aria-label="From date"
+                />
+                <Slider.Thumb
+                  className="block w-4 h-4 bg-white rounded-full shadow-md border-2 border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-gray-900 cursor-grab active:cursor-grabbing transition-colors"
+                  aria-label="To date"
+                />
+              </Slider.Root>
+
+              <div className="flex justify-between mt-1.5">
+                <span className="text-xs text-gray-600">Today</span>
+                <span className="text-xs text-gray-600">+18 mo</span>
+              </div>
+            </div>
+          </ProGate>
+
+          {/* Gi / No-Gi — Pro feature */}
+          <ProGate onUpgrade={() => setUpgradeOpen(true)}>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
+                Gi / No-Gi
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setFilters({ gi: !filters.gi })}
+                  className={cn(
+                    "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                    filters.gi
+                      ? "bg-blue-600 text-white border-blue-500"
+                      : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+                  )}
+                >
+                  Gi
+                </button>
+                <button
+                  onClick={() => setFilters({ nogi: !filters.nogi })}
+                  className={cn(
+                    "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                    filters.nogi
+                      ? "bg-blue-600 text-white border-blue-500"
+                      : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+                  )}
+                >
+                  No-Gi
+                </button>
+              </div>
+            </div>
+          </ProGate>
+
+          {/* Age group — Pro feature */}
+          <ProGate onUpgrade={() => setUpgradeOpen(true)}>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
+                Age Group
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setFilters({ adult: !filters.adult })}
+                  className={cn(
+                    "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                    filters.adult
+                      ? "bg-blue-600 text-white border-blue-500"
+                      : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+                  )}
+                >
+                  Adult
+                </button>
+                <button
+                  onClick={() => setFilters({ kids: !filters.kids })}
+                  className={cn(
+                    "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
+                    filters.kids
+                      ? "bg-blue-600 text-white border-blue-500"
+                      : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
+                  )}
+                >
+                  Kids
+                </button>
+              </div>
+            </div>
+          </ProGate>
+
+          {/* Region search — Pro feature */}
+          <ProGate onUpgrade={() => setUpgradeOpen(true)}>
+            <div>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <MapPin size={12} />
+                Region / Location
+              </label>
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="e.g. California, Brazil..."
+                  value={filters.region}
+                  onChange={(e) => setFilters({ region: e.target.value })}
+                  className="w-full bg-gray-800 border border-gray-600 text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 placeholder-gray-600"
+                />
+              </div>
+            </div>
+          </ProGate>
+        </div>
+
+        {/* Footer stats + legend */}
+        <div className="p-4 border-t border-gray-700">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+            <span className={cn(isLoading && "animate-pulse text-blue-400")}>
+              {isLoading ? (
+                <span className="flex items-center gap-1.5">
+                  <RefreshCw size={10} className="animate-spin" />
+                  Loading...
+                </span>
+              ) : (
+                `${competitions.length} shown / ${total} total`
+              )}
+            </span>
+            <span className="text-gray-600">
+              {competitions.filter((c) => c.lat != null).length} mapped
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {SOURCE_CONFIG.map((src) => (
+              <div key={src.key} className="flex items-center gap-1.5 text-xs text-gray-400">
+                <span
+                  className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
+                  style={{ backgroundColor: src.color }}
+                />
                 {src.label}
-              </button>
+              </div>
             ))}
           </div>
         </div>
+      </aside>
 
-        {/* Date range slider */}
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <Calendar size={12} />
-            Date Range
-          </label>
-
-          {/* Selected range labels */}
-          <div className="flex justify-between mb-3">
-            <div className="text-center">
-              <div className="text-xs text-gray-500 mb-0.5">From</div>
-              <div className="text-xs font-medium text-white bg-gray-800 px-2 py-1 rounded-md border border-gray-700">
-                {formatSliderLabel(filters.dateFrom)}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-gray-500 mb-0.5">To</div>
-              <div className="text-xs font-medium text-white bg-gray-800 px-2 py-1 rounded-md border border-gray-700">
-                {formatSliderLabel(filters.dateTo)}
-              </div>
-            </div>
-          </div>
-
-          {/* Radix slider */}
-          <Slider.Root
-            className="relative flex items-center select-none touch-none w-full h-5"
-            min={0}
-            max={SLIDER_MAX_DAYS}
-            step={1}
-            value={[fromOffset, toOffset]}
-            onValueChange={handleSliderChange}
-            minStepsBetweenThumbs={1}
-          >
-            <Slider.Track className="bg-gray-700 relative grow rounded-full h-1.5">
-              <Slider.Range className="absolute bg-blue-500 rounded-full h-full" />
-            </Slider.Track>
-
-            {/* From thumb */}
-            <Slider.Thumb
-              className="block w-4 h-4 bg-white rounded-full shadow-md border-2 border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-gray-900 cursor-grab active:cursor-grabbing transition-colors"
-              aria-label="From date"
-            />
-            {/* To thumb */}
-            <Slider.Thumb
-              className="block w-4 h-4 bg-white rounded-full shadow-md border-2 border-blue-500 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-gray-900 cursor-grab active:cursor-grabbing transition-colors"
-              aria-label="To date"
-            />
-          </Slider.Root>
-
-          {/* Axis labels */}
-          <div className="flex justify-between mt-1.5">
-            <span className="text-xs text-gray-600">Today</span>
-            <span className="text-xs text-gray-600">+18 mo</span>
-          </div>
-        </div>
-
-        {/* Gi / No-Gi */}
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
-            Gi / No-Gi
-          </label>
-          <div className="grid grid-cols-2 gap-1.5">
-            <button
-              onClick={() => setFilters({ gi: !filters.gi })}
-              className={cn(
-                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
-                filters.gi
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
-              )}
-            >
-              Gi
-            </button>
-            <button
-              onClick={() => setFilters({ nogi: !filters.nogi })}
-              className={cn(
-                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
-                filters.nogi
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
-              )}
-            >
-              No-Gi
-            </button>
-          </div>
-        </div>
-
-        {/* Age group */}
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 block">
-            Age Group
-          </label>
-          <div className="grid grid-cols-2 gap-1.5">
-            <button
-              onClick={() => setFilters({ adult: !filters.adult })}
-              className={cn(
-                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
-                filters.adult
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
-              )}
-            >
-              Adult
-            </button>
-            <button
-              onClick={() => setFilters({ kids: !filters.kids })}
-              className={cn(
-                "py-1.5 px-2 rounded-lg border text-xs font-medium transition-all",
-                filters.kids
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-gray-800 text-gray-400 border-gray-600 hover:border-blue-600/50"
-              )}
-            >
-              Kids
-            </button>
-          </div>
-        </div>
-
-        {/* Region search */}
-        <div>
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <MapPin size={12} />
-            Region / Location
-          </label>
-          <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input
-              type="text"
-              placeholder="e.g. California, Brazil..."
-              value={filters.region}
-              onChange={(e) => setFilters({ region: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-600 text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 placeholder-gray-600"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Footer stats + legend */}
-      <div className="p-4 border-t border-gray-700">
-        <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-          <span className={cn(isLoading && "animate-pulse text-blue-400")}>
-            {isLoading ? (
-              <span className="flex items-center gap-1.5">
-                <RefreshCw size={10} className="animate-spin" />
-                Loading...
-              </span>
-            ) : (
-              `${competitions.length} shown / ${total} total`
-            )}
-          </span>
-          <span className="text-gray-600">
-            {competitions.filter((c) => c.lat != null).length} mapped
-          </span>
-        </div>
-
-        <div className="flex flex-wrap gap-x-3 gap-y-1">
-          {SOURCE_CONFIG.map((src) => (
-            <div key={src.key} className="flex items-center gap-1.5 text-xs text-gray-400">
-              <span
-                className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
-                style={{ backgroundColor: src.color }}
-              />
-              {src.label}
-            </div>
-          ))}
-        </div>
-      </div>
-    </aside>
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </>
   );
 }

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Grapplers List — BJJ Competition Map",
-  description: "Find BJJ competitions near you. Interactive map of IBJJF and JJ World League events.",
+  description: "Find BJJ competitions near you. Interactive map of IBJJF, JJWL, AGF, NAGA and ADCC events.",
 };
 
 export default function RootLayout({
@@ -29,7 +30,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="antialiased bg-gray-950 text-white">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
